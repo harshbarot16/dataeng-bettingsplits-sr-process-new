@@ -1,0 +1,132 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Prod CI/CD pipeline
+Parameters:
+  ProjectName:
+    Type: String
+  UImage:
+    Description: CodeBuild container image
+    Type: String
+    Default: aws/codebuild/standard:4.0
+  ComputeType:
+    Description: CodeBuild compute type
+    Type: String
+    Default: BUILD_GENERAL1_SMALL
+  GitHubOAuthToken:
+    Description: GitHub OAuth Token
+    Type: String
+    NoEcho: true
+    Default: '{{resolve:secretsmanager:dataeng-github-ci-cd-token:SecretString:token}}'
+  GitHubAccountName:
+    Type: String
+    Default: "cbs-sports"
+  Environment:
+    Type: String
+    Default: prod
+Resources:
+  PipelineBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+  PipelineBuildStageCodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: !Ref ComputeType
+        Image: !Ref UImage
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: ENVIRONMENT
+            Type: PLAINTEXT
+            Value: !Ref Environment
+      Name: !Sub "${ProjectName}-pipeline-build"
+      ServiceRole: !ImportValue CodeBuildRoleArn
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: 'build/buildspec-build.yml'
+  PipelineDeployStageCodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: !Ref ComputeType
+        Image: !Ref UImage
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: ENVIRONMENT
+            Type: PLAINTEXT
+            Value: !Ref Environment
+      Name: !Sub "${ProjectName}-pipeline-deploy"
+      ServiceRole: !ImportValue CodeBuildRoleArn
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: 'build/buildspec-deploy.yml'
+  CodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      ArtifactStore:
+        Type: S3
+        Location: !Ref PipelineBucket
+      RoleArn: !ImportValue CodePipelineRoleArn
+      Name: !Ref ProjectName
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: TemplateSource
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              OutputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                Owner: !Ref GitHubAccountName
+                Repo: !Ref ProjectName
+                PollForSourceChanges: false
+                Branch: master
+                OAuthToken: !Ref GitHubOAuthToken
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: Validation
+              ActionTypeId:
+                  Category: Build
+                  Owner: AWS
+                  Version: 1
+                  Provider: CodeBuild
+              OutputArtifacts:
+                - Name: !Sub "${ProjectName}-Build"
+              InputArtifacts:
+                - Name: "SourceOutput"
+              Configuration:
+                ProjectName: !Ref PipelineBuildStageCodeBuildProject
+              RunOrder: 1
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              InputArtifacts:
+                - Name: !Sub "${ProjectName}-Build"
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref PipelineDeployStageCodeBuildProject
+              RunOrder: 1
+  CodePipelineWebhook:
+    Type: AWS::CodePipeline::Webhook
+    Properties:
+      Authentication: GITHUB_HMAC
+      AuthenticationConfiguration:
+        SecretToken: !Ref GitHubOAuthToken
+      Filters:
+        -
+          JsonPath: "$.ref"
+          MatchEquals: refs/heads/{Branch}
+      TargetPipeline: !Ref CodePipeline
+      TargetAction: TemplateSource
+      TargetPipelineVersion: !GetAtt CodePipeline.Version
+      RegisterWithThirdParty: true

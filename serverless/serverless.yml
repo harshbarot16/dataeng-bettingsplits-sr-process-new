@@ -1,0 +1,44 @@
+service: dataeng-futures-wh-process
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: python3.7
+  tracing:
+    lambda: true
+  environment:
+    TEAM_HANDLER: src/handler/process_team_futures.process_team_futures
+    BOOKID: 'wh:book:whnj'
+    BUCKET: 'dataeng-futures-wh-sls-${opt:stage, self:provider.stage}'
+  stage: ${opt:stage, 'qa'}
+  region: us-east-1
+  timeout: 60
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+      Resource: 'arn:aws:s3:::${self:provider.environment.BUCKET}/*'
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: 'arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}'
+
+
+functions:
+  # NFL
+  nfl_team:
+    handler: ${self:provider.environment.TEAM_HANDLER}
+    environment:
+        LEAGUE: 'nfl'
+    events:
+      - s3: ${self:provider.environment.BUCKET}
+
