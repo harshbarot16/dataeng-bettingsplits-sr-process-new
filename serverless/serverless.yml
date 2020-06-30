@@ -11,7 +11,7 @@ provider:
   environment:
     TEAM_HANDLER: src/handler/process_team_futures.process_team_futures
     BOOKID: 'wh:book:whnj'
-    BUCKET: 'dataeng-futures-wh-sls-${opt:stage, self:provider.stage}'
+    BUCKET: 'dataeng-futures-wh-${opt:stage, self:provider.stage}'
   stage: ${opt:stage, 'qa'}
   region: us-east-1
   timeout: 60
