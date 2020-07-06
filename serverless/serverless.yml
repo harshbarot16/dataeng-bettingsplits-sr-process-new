@@ -12,9 +12,12 @@ provider:
     TEAM_HANDLER: src/handler/process_team_futures.process_team_futures
     BOOKID: 'wh:book:whnj'
     BUCKET: 'dataeng-futures-wh-${opt:stage, self:provider.stage}'
+    DOC_DB_CONNECTION_STRING:  ${file(config/config-${opt:stage, self:provider.stage}.yml):docDbConnectionString}
+    MONGO_COLLECTION: 'team_futures_wh'
   stage: ${opt:stage, 'qa'}
   region: us-east-1
   timeout: 60
+  vpc: ${file(config/config-${opt:stage, self:provider.stage}.yml):vpc}
 
   iamRoleStatements:
     - Effect: Allow
@@ -22,16 +25,6 @@ provider:
         - s3:PutObject
         - s3:GetObject
       Resource: 'arn:aws:s3:::${self:provider.environment.BUCKET}/*'
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-      Resource: 'arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}'
-
 
 functions:
   # NFL

@@ -1,31 +1,26 @@
-""" pytest fixtures """
+""" test process_team_futures """
+import json
 import os
 import pytest
-import boto3
-from moto import mock_s3
+from pymongo import MongoClient
+import src.handler.process_team_futures
 
+def test_persist_team_futures_keyerror(bad_environ):
+    """ test keyerror """
+    book_id = "wh:book:whnj"
+    league = "nfl"
+    status_code, message = src.handler.process_team_futures.persist_team_futures(get_json_futures(), book_id, league)
+    assert status_code == 500
+    assert message == "KeyError"
 
-@pytest.fixture(name="aws_credentials", scope="session", autouse=True)
-def fix_aws_credentials():
-    """Mocked AWS Credentials for moto."""
-    os.environ["AWS_ACCESS_KEY_ID"] = "testing"
-    os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
-    os.environ["AWS_SECURITY_TOKEN"] = "testing"
-    os.environ["AWS_SESSION_TOKEN"] = "testing"
+def test_persist_team_futures_connerror(environ):
+    """ test connerror """
+    book_id = "wh:book:whnj"
+    league = "nfl"
+    status_code, message = src.handler.process_team_futures.persist_team_futures(get_json_futures(), book_id, league)
+    assert status_code == 500
+    assert message == "Pymongo Connection Failure"
 
-
-@pytest.fixture(name="s3")
-def fix_s3():
-    """ s3 """
-    with mock_s3():
-        s3 = boto3.client("s3", region_name="us-east-1")
-        s3.create_bucket(Bucket="dataeng-futures-wh-qa")
-        s3.put_object(
-            Bucket="dataeng-futures-wh-qa",
-            Body=get_team_future(),
-            Key="nfl",
-        )
-        yield s3
 @pytest.fixture(name="environ")
 def fix_environ():
     """ environ """
@@ -35,13 +30,14 @@ def fix_environ():
     os.environ["DOC_DB_CONNECTION_STRING"] = "atlas.mongodb.uri=mongodb://atlas_write:weakWriteQA@sdf-mongo-qa.transit.cbsig.net/atlas?authSource=admin"
     os.environ["MONGO_COLLECTION"] = "team_futures_wh"
 
-@pytest.fixture(name="bad_environ")
-def fix_bad_environ():
-    """ environ """
-    if "LEAGUE" in os.environ:
-        del os.environ["LEAGUE"]
+@pytest.fixture(autouse=True)
+def patch_mongo(monkeypatch):
+    """ use bad client """
+    def get_bad_client(conn):
+        return MongoClient(connect=False)
+    monkeypatch.setattr('src.handler.process_team_futures.get_client', get_bad_client)
 
-def get_team_future():
+def get_json_futures():
     """ get team future"""
     data = """
         [{
@@ -92,4 +88,4 @@ def get_team_future():
             }]
         }]
         """
-    return data
+    return json.loads(data)

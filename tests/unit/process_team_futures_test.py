@@ -1,10 +1,12 @@
 """ test process_team_futures """
+import os
+import mongomock
+import pytest
 from botocore.exceptions import ClientError
 import src.handler.process_team_futures
 
 
-
-def test_process_team_futures_keyerror():
+def test_process_team_futures_keyerror(bad_environ):
     """ test keyerror """
     event = s3_object_event()
     response = src.handler.process_team_futures.process_team_futures(event, None)
@@ -50,7 +52,8 @@ def test_process_team_futures_json_error(environ, s3):
     file_key = "nfl"
     book_id = "wh:book:whnj"
     league = "nfl"
-    status_code, message = src.handler.process_team_futures.process_s3(s3, bucket_name, file_key, book_id, league)
+    status_code, message = src.handler.process_team_futures.process_s3(
+        s3, bucket_name, file_key, book_id, league)
     assert status_code == 500
     assert message == "failed to decode json"
 
@@ -61,7 +64,8 @@ def test_process_team_futures_clienterror(environ, s3):
     file_key = "nfl"
     book_id = "wh:book:whnj"
     league = "nfl"
-    status_code, message = src.handler.process_team_futures.process_s3(s3, bucket_name, file_key, book_id, league)
+    status_code, message = src.handler.process_team_futures.process_s3(
+        s3, bucket_name, file_key, book_id, league)
     assert status_code == 501
     assert message == "s3 get object error"
 
@@ -113,3 +117,10 @@ def s3_object_mismatched_event():
             }
         ]
     }
+
+@pytest.fixture(autouse=True)
+def patch_mongo(monkeypatch):
+    """ use mongomock client """
+    def get_fake_client(conn):
+        return mongomock.MongoClient()
+    monkeypatch.setattr('src.handler.process_team_futures.get_client', get_fake_client)

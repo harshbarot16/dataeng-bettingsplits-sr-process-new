@@ -1,0 +1,10 @@
+vpc:
+  subnetIds:
+    - subnet-005c778117a300e78
+    - subnet-05f769430db1bdb68
+    - subnet-0dd6b3a15ec64ee03
+  securityGroupIds:
+    - sg-039c91ad3331d94dd
+
+docDbConnectionString:
+  mongodb://atlas_write:weakWriteQA@datatech-sdf-docdb-qa.cluster-c5q8zvl01dua.us-east-1.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false

@@ -2,6 +2,8 @@
 import json
 import logging
 import os
+from pymongo.errors import ConnectionFailure
+from pymongo import MongoClient
 import boto3
 from botocore.exceptions import ClientError
 
@@ -57,8 +59,37 @@ def process_s3(s3, bucket_name, file_key, book_id, league):
         message = "failed to decode json"
         logger.error(message)
     else:
-        status_code = 200
-        message = "team futures processed"
+        status_code, message = persist_team_futures(futures, book_id, league)
         logger.info(json.dumps(futures))
 
     return status_code, message
+
+def persist_team_futures(futures, book_id, league):
+    """ persist to documentDb """
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    try:
+        doc_db_connstring = os.environ["DOC_DB_CONNECTION_STRING"]
+        mongo_client = get_client(doc_db_connstring)
+        collection = os.environ["MONGO_COLLECTION"]
+        tf_collection = mongo_client.atlas[collection]
+    except KeyError as key_error:
+        status_code = 500
+        message = "KeyError"
+        logger.error("%s", key_error)
+    else:
+        try:
+            for team_future in futures:
+                team_future["_id"] = team_future["id"]
+                tf_collection.replace_one({"_id" : team_future["_id"]}, team_future, {"upsert": "true"})
+            status_code = 200
+            message = "team futures processed"
+        except ConnectionFailure:
+            status_code = 500
+            message = "Pymongo Connection Failure"
+
+    return status_code, message
+
+def get_client(conn):
+    """ get mongo client """
+    return MongoClient(conn)
