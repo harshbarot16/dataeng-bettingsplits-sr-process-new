@@ -2,6 +2,7 @@
 import os
 import pytest
 import boto3
+import mongomock
 from moto import mock_s3
 
 
@@ -32,7 +33,7 @@ def fix_environ():
     os.environ["LEAGUE"] = "nfl"
     os.environ["BOOKID"] = "wh:book:whnj"
     # os.environ["DOC_DB_CONNECTION_STRING"] = "mongodb://atlas_write:weakWriteQA@datatech-sdf-docdb-qa.cluster-c5q8zvl01dua.us-east-1.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
-    os.environ["DOC_DB_CONNECTION_STRING"] = "atlas.mongodb.uri=mongodb://atlas_write:weakWriteQA@sdf-mongo-qa.transit.cbsig.net/atlas?authSource=admin"
+    os.environ["DOC_DB_CONNECTION_STRING"] = "mongodb://atlas_write:weakWriteQA@sdf-mongo-qa.transit.cbsig.net/atlas?authSource=admin"
     os.environ["MONGO_COLLECTION"] = "team_futures_wh"
 
 @pytest.fixture(name="bad_environ")
@@ -40,6 +41,13 @@ def fix_bad_environ():
     """ environ """
     if "LEAGUE" in os.environ:
         del os.environ["LEAGUE"]
+
+@pytest.fixture(autouse=True)
+def patch_mongo(monkeypatch):
+    """ use mongomock client """
+    def get_fake_client(conn):
+        return mongomock.MongoClient()
+    monkeypatch.setattr('src.handler.process_team_futures.get_client', get_fake_client)
 
 def get_team_future():
     """ get team future"""

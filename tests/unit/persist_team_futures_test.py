@@ -2,24 +2,26 @@
 import json
 import os
 import pytest
-from pymongo import MongoClient
+from pymongo.errors import PyMongoError
 import src.handler.process_team_futures
 
 def test_persist_team_futures_keyerror(bad_environ):
     """ test keyerror """
-    book_id = "wh:book:whnj"
-    league = "nfl"
-    status_code, message = src.handler.process_team_futures.persist_team_futures(get_json_futures(), book_id, league)
+    status_code, message = src.handler.process_team_futures.persist_team_futures(get_json_futures(), "wh:book:whnj", "nfl")
     assert status_code == 500
     assert message == "KeyError"
 
 def test_persist_team_futures_connerror(environ):
     """ test connerror """
-    book_id = "wh:book:whnj"
-    league = "nfl"
-    status_code, message = src.handler.process_team_futures.persist_team_futures(get_json_futures(), book_id, league)
+    src.handler.process_team_futures.pymongo.collection.replace_one = error_replace_one
+    status_code, message = src.handler.process_team_futures.persist_team_futures(get_json_futures(), "wh:book:whnj", "nfl")
     assert status_code == 500
-    assert message == "Pymongo Connection Failure"
+    assert message == "Pymongo Error"
+
+def error_replace_one(filt, replacement):
+    """ raise PyMongo error """
+    print("raising pymongo error")
+    raise PyMongoError
 
 @pytest.fixture(name="environ")
 def fix_environ():
@@ -29,13 +31,7 @@ def fix_environ():
     # os.environ["DOC_DB_CONNECTION_STRING"] = "mongodb://atlas_write:weakWriteQA@datatech-sdf-docdb-qa.cluster-c5q8zvl01dua.us-east-1.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
     os.environ["DOC_DB_CONNECTION_STRING"] = "atlas.mongodb.uri=mongodb://atlas_write:weakWriteQA@sdf-mongo-qa.transit.cbsig.net/atlas?authSource=admin"
     os.environ["MONGO_COLLECTION"] = "team_futures_wh"
-
-@pytest.fixture(autouse=True)
-def patch_mongo(monkeypatch):
-    """ use bad client """
-    def get_bad_client(conn):
-        return MongoClient(connect=False)
-    monkeypatch.setattr('src.handler.process_team_futures.get_client', get_bad_client)
+    os.environ["MARKET_NAMES"] = '["To Make The Playoffs", "Regular Season Wins", "Winner", "To Win Pro Football Championship"]'
 
 def get_json_futures():
     """ get team future"""
