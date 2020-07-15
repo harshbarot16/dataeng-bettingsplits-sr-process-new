@@ -10,4 +10,4 @@ else
   STAGE="${ENVIRONMENT}"
 fi
 
-serverless deploy --stage $STAGE --verbose --aws-s3-accelerate --config ./serverless.yml
+serverless deploy --stage $STAGE --verbose --aws-s3-accelerate --config serverless.yml
