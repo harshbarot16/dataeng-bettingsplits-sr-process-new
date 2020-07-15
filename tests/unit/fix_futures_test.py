@@ -1,5 +1,4 @@
 """ test fix futures """
-import os
 import src.handler.process_team_futures
 
 def test_fix_futures(environ, team_future_without_id):
