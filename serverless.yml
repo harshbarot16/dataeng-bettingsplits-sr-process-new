@@ -15,6 +15,7 @@ provider:
     DOC_DB_CONNECTION_STRING:  ${file(config/config-${opt:stage, self:provider.stage}.yml):docDbConnectionString}
     LEAGUE_MONGO_COLLECTION: 'league_team_futures_wh'
     TEAM_MONGO_COLLECTION: 'team_futures_wh'
+    PYMONGO_LAYER: ${file(config/config-${opt:stage, self:provider.stage}.yml):pymongo-layer}
   stage: ${opt:stage, 'qa'}
   region: us-east-1
   timeout: 60
@@ -37,6 +38,8 @@ functions:
         MARKET_NAMES: ${file(config/config-nfl.json):market_names}
     events:
       - s3: ${self:provider.environment.BUCKET}
+    layers:
+      - ${self:provider.environment.PYMONGO_LAYER}
   # NBA
   nba_team:
     handler: ${self:provider.environment.TEAM_HANDLER}
@@ -46,6 +49,8 @@ functions:
         MARKET_NAMES: ${file(config/config-nba.json):market_names}
     events:
       - s3: ${self:provider.environment.BUCKET}
+    layers:
+      - ${self:provider.environment.PYMONGO_LAYER}
   # MLB
   mlb_team:
     handler: ${self:provider.environment.TEAM_HANDLER}
@@ -55,6 +60,8 @@ functions:
         MARKET_NAMES: ${file(config/config-mlb.json):market_names}
     events:
       - s3: ${self:provider.environment.BUCKET}
+    layers:
+      - ${self:provider.environment.PYMONGO_LAYER}
   # NCAAF
   ncaaf_team:
     handler: ${self:provider.environment.TEAM_HANDLER}
@@ -64,6 +71,8 @@ functions:
         MARKET_NAMES: ${file(config/config-ncaaf.json):market_names}
     events:
       - s3: ${self:provider.environment.BUCKET}
+    layers:
+      - ${self:provider.environment.PYMONGO_LAYER}
   # NCAAB
   ncaab_team:
     handler: ${self:provider.environment.TEAM_HANDLER}
@@ -73,6 +82,8 @@ functions:
         MARKET_NAMES: ${file(config/config-ncaab.json):market_names}
     events:
       - s3: ${self:provider.environment.BUCKET}
+    layers:
+      - ${self:provider.environment.PYMONGO_LAYER}
   # nhl
   nhl_team:
     handler: ${self:provider.environment.TEAM_HANDLER}
@@ -82,3 +93,5 @@ functions:
         MARKET_NAMES: ${file(config/config-nhl.json):market_names}
     events:
       - s3: ${self:provider.environment.BUCKET}
+    layers:
+      - ${self:provider.environment.PYMONGO_LAYER}
