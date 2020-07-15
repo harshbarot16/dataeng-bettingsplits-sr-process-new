@@ -1,0 +1,10 @@
+{
+        "Records": [
+            {
+                "s3": {
+                    "object": {"key": "nba"},
+                    "bucket": {"name": "dataeng-futures-wh-qa"}
+                }
+            }
+        ]
+    }

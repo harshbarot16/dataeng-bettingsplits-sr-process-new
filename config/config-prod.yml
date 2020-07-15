@@ -1,0 +1,13 @@
+vpc:
+  subnetIds:
+    - subnet-0154f6ee3620b9ffb
+    - subnet-0420dc1346cfd3b35
+    - subnet-09ca40955bc02ef4c
+  securityGroupIds:
+    - sg-0a19f4a2ae5462222
+
+docDbConnectionString:
+  atlas.mongodb.uri=mongodb://atlas_write:_sdkj28h21@sdf-mongo-prod-master.transit.cbsig.net:27017,sdf-mongo-prod-slave1.transit.cbsig.net:27017,sdf-mongo-prod-slave2.transit.cbsig.net:27017/atlas?w=1&replicaSet=sdfRs&readPreference=secondaryPreferred&authSource=admin
+
+pymongo-layer:
+  arn:aws:lambda:us-east-1:104016028232:layer:pymongo:1
