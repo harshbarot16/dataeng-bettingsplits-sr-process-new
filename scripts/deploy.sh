@@ -9,5 +9,6 @@ if [[ -z "${ENVIRONMENT}" ]]; then
 else
   STAGE="${ENVIRONMENT}"
 fi
-cd ..
-serverless deploy --stage $STAGE --verbose --aws-s3-accelerate
+pwd
+ls -ltrh
+serverless deploy --stage $STAGE --verbose --aws-s3-accelerate --config ../serverless.yml
