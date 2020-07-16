@@ -36,7 +36,9 @@ functions:
         LEAGUE: 'nfl'
         CBS_LEAGUE_ID: 59
     events:
-      - s3: ${self:provider.environment.BUCKET}
+      - s3: 
+          bucket: ${self:provider.environment.BUCKET}
+          existing: true
     layers:
       - ${self:provider.environment.PYMONGO_LAYER}
   # NBA
@@ -46,7 +48,9 @@ functions:
         LEAGUE: 'nba'
         CBS_LEAGUE_ID: 54
     events:
-      - s3: ${self:provider.environment.BUCKET}
+      - s3: 
+          bucket: ${self:provider.environment.BUCKET}
+          existing: true
     layers:
       - ${self:provider.environment.PYMONGO_LAYER}
   # MLB
@@ -56,7 +60,9 @@ functions:
         LEAGUE: 'mlb'
         CBS_LEAGUE_ID: 52
     events:
-      - s3: ${self:provider.environment.BUCKET}
+      - s3: 
+          bucket: ${self:provider.environment.BUCKET}
+          existing: true
     layers:
       - ${self:provider.environment.PYMONGO_LAYER}
   # NCAAF
@@ -66,7 +72,9 @@ functions:
         LEAGUE: 'ncaaf'
         CBS_LEAGUE_ID: 56
     events:
-      - s3: ${self:provider.environment.BUCKET}
+      - s3: 
+          bucket: ${self:provider.environment.BUCKET}
+          existing: true
     layers:
       - ${self:provider.environment.PYMONGO_LAYER}
   # NCAAB
@@ -76,7 +84,9 @@ functions:
         LEAGUE: 'ncaab'
         CBS_LEAGUE_ID: 55
     events:
-      - s3: ${self:provider.environment.BUCKET}
+      - s3: 
+         bucket: ${self:provider.environment.BUCKET}
+         existing: true
     layers:
       - ${self:provider.environment.PYMONGO_LAYER}
   # nhl
@@ -86,6 +96,8 @@ functions:
         LEAGUE: 'nhl'
         CBS_LEAGUE_ID: 60
     events:
-      - s3: ${self:provider.environment.BUCKET}
+      - s3: 
+          bucket: ${self:provider.environment.BUCKET}
+          existing: true
     layers:
       - ${self:provider.environment.PYMONGO_LAYER}
