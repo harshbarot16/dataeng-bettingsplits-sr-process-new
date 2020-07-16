@@ -12,14 +12,14 @@ provider:
     TEAM_HANDLER: src/handler/process_team_futures.process_team_futures
     BOOKID: 'wh:book:whnj'
     BUCKET: 'dataeng-futures-wh-${opt:stage, self:provider.stage}'
-    DOC_DB_CONNECTION_STRING:  ${file(../config/config-${opt:stage, self:provider.stage}.yml):docDbConnectionString}
+    DOC_DB_CONNECTION_STRING:  ${file(./config/config-${opt:stage, self:provider.stage}.yml):docDbConnectionString}
     LEAGUE_MONGO_COLLECTION: 'league_team_futures_wh'
     TEAM_MONGO_COLLECTION: 'team_futures_wh'
-    PYMONGO_LAYER: ${file(../config/config-${opt:stage, self:provider.stage}.yml):pymongo-layer}
+    PYMONGO_LAYER: ${file(./config/config-${opt:stage, self:provider.stage}.yml):pymongo-layer}
   stage: ${opt:stage, 'qa'}
   region: us-east-1
   timeout: 60
-  vpc: ${file(../config/config-${opt:stage, self:provider.stage}.yml):vpc}
+  vpc: ${file(./config/config-${opt:stage, self:provider.stage}.yml):vpc}
 
   iamRoleStatements:
     - Effect: Allow
@@ -35,7 +35,7 @@ functions:
     environment:
         LEAGUE: 'nfl'
         CBS_LEAGUE_ID: 59
-        MARKET_NAMES: ${file(../config/config-nfl.json):market_names}
+        MARKET_NAMES: ${file(./config/config-nfl.json):market_names}
     events:
       - s3: ${self:provider.environment.BUCKET}
     layers:
@@ -46,7 +46,7 @@ functions:
     environment:
         LEAGUE: 'nba'
         CBS_LEAGUE_ID: 54
-        MARKET_NAMES: ${file(../config/config-nba.json):market_names}
+        MARKET_NAMES: ${file(./config/config-nba.json):market_names}
     events:
       - s3: ${self:provider.environment.BUCKET}
     layers:
@@ -57,7 +57,7 @@ functions:
     environment:
         LEAGUE: 'mlb'
         CBS_LEAGUE_ID: 52
-        MARKET_NAMES: ${file(../config/config-mlb.json):market_names}
+        MARKET_NAMES: ${file(./config/config-mlb.json):market_names}
     events:
       - s3: ${self:provider.environment.BUCKET}
     layers:
@@ -68,7 +68,7 @@ functions:
     environment:
         LEAGUE: 'ncaaf'
         CBS_LEAGUE_ID: 56
-        MARKET_NAMES: ${file(../config/config-ncaaf.json):market_names}
+        MARKET_NAMES: ${file(./config/config-ncaaf.json):market_names}
     events:
       - s3: ${self:provider.environment.BUCKET}
     layers:
@@ -79,7 +79,7 @@ functions:
     environment:
         LEAGUE: 'ncaab'
         CBS_LEAGUE_ID: 55
-        MARKET_NAMES: ${file(../config/config-ncaab.json):market_names}
+        MARKET_NAMES: ${file(./config/config-ncaab.json):market_names}
     events:
       - s3: ${self:provider.environment.BUCKET}
     layers:
@@ -90,7 +90,7 @@ functions:
     environment:
         LEAGUE: 'nhl'
         CBS_LEAGUE_ID: 60
-        MARKET_NAMES: ${file(../config/config-nhl.json):market_names}
+        MARKET_NAMES: ${file(./config/config-nhl.json):market_names}
     events:
       - s3: ${self:provider.environment.BUCKET}
     layers:

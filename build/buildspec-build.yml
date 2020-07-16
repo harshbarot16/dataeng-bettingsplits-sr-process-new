@@ -11,6 +11,7 @@ phases:
 artifacts:
   files:
     - 'scripts/**/*'
+    - 'config/**/*'
     - 'src/**/*'
     - 'build/buildspec-deploy.yml'
     - 'serverless.yml'
