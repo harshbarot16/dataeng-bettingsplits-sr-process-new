@@ -8,7 +8,7 @@ def test_fix_futures(environ, team_future_without_id):
     status_code, message, filtered_futures = src.handler.process_team_futures.fix_futures(team_future_without_id, "wh:book:whnj", "nfl", 59)
     assert status_code == 200
     assert message == "done"
-    assert filtered_futures[0]["team_id"] == 409
+    assert filtered_futures[0]["team_id"] == 405
 
 def test_fix_team_futures(environ, team_future_with_id):
     """ test fix fixtures """
