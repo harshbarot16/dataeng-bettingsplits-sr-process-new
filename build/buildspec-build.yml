@@ -13,5 +13,5 @@ artifacts:
     - 'scripts/**/*'
     - 'src/**/*'
     - 'build/buildspec-deploy.yml'
-    - 'serverless/**/*'
+    - 'serverless.yml'
     - 'requirements.txt'
