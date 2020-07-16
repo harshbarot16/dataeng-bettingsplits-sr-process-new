@@ -30,7 +30,6 @@ def fix_s3(team_future_without_id):
 @pytest.fixture(name="environ")
 def fix_environ():
     """ environ """
-    os.environ["MARKET_NAMES"] = "To Make The Playoffs,Regular Season Wins,Winner,To Win Pro Football Championship"
     os.environ["LEAGUE"] = "nfl"
     os.environ["CBS_LEAGUE_ID"] = "59"
     os.environ["BOOKID"] = "wh:book:whnj"
@@ -46,8 +45,6 @@ def fix_bad_environ():
         del os.environ["DOC_DB_CONNECTION_STRING"]
     if "LEAGUE" in os.environ:
         del os.environ["LEAGUE"]
-    if "MARKET_NAMES" in os.environ:
-        del os.environ["MARKET_NAMES"]
 
 @pytest.fixture(autouse=True)
 def patch_mongo(monkeypatch):

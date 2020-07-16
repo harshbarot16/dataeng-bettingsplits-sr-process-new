@@ -4,6 +4,7 @@ import logging
 import datetime
 import time
 import os
+import sys
 import copy
 import urllib.request
 from urllib.error import HTTPError
@@ -14,6 +15,7 @@ from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 def process_team_futures(event, context):
     """ lambda handler to process william hill futures """
@@ -102,8 +104,9 @@ def fix_futures(futures, book_id, league, league_id):
     """ filter and fix futures """
     try:
         filtered_futures = []
-        team_market_names = (os.environ["MARKET_NAMES"]).split(",")
-        logger.info(team_market_names)
+        with open(os.path.join(__location__, "market-names-"+league+".json")) as json_file:
+            markets = json.load(json_file)
+        logger.info(markets["market_names"])
         status_code, message, stats_vendor_team_map = get_stats_vendor_team_map(league)
         status_code, message, william_hill_vendor_team_map = get_wh_vendor_team_map(league)
     except KeyError as key_error:
@@ -112,7 +115,7 @@ def fix_futures(futures, book_id, league, league_id):
         logger.error("%s", key_error)
     else:
         for future in futures:
-            if any(tmn in future["name"] for tmn in team_market_names):
+            if any(tmn in future["name"] for tmn in markets["market_names"]):
                 future["_id"] = future["id"]
                 del future["id"]
                 future["league_id"] = league_id

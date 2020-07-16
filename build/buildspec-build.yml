@@ -16,3 +16,4 @@ artifacts:
     - 'build/buildspec-deploy.yml'
     - 'serverless.yml'
     - 'requirements.txt'
+    - 'rds-combined-ca-bundle.pem'
