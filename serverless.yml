@@ -39,6 +39,8 @@ functions:
       - s3: 
           bucket: ${self:provider.environment.BUCKET}
           existing: true
+          rules:
+            - prefix: nfl
     layers:
       - ${self:provider.environment.PYMONGO_LAYER}
   # NBA
@@ -51,6 +53,8 @@ functions:
       - s3: 
           bucket: ${self:provider.environment.BUCKET}
           existing: true
+          rules:
+            - prefix: nba
     layers:
       - ${self:provider.environment.PYMONGO_LAYER}
   # MLB
@@ -63,6 +67,8 @@ functions:
       - s3: 
           bucket: ${self:provider.environment.BUCKET}
           existing: true
+          rules:
+            - prefix: mlb
     layers:
       - ${self:provider.environment.PYMONGO_LAYER}
   # NCAAF
@@ -75,6 +81,8 @@ functions:
       - s3: 
           bucket: ${self:provider.environment.BUCKET}
           existing: true
+          rules:
+            - prefix: ncaaf
     layers:
       - ${self:provider.environment.PYMONGO_LAYER}
   # NCAAB
@@ -87,6 +95,8 @@ functions:
       - s3: 
          bucket: ${self:provider.environment.BUCKET}
          existing: true
+         rules:
+          - prefix: ncaab
     layers:
       - ${self:provider.environment.PYMONGO_LAYER}
   # nhl
@@ -99,5 +109,7 @@ functions:
       - s3: 
           bucket: ${self:provider.environment.BUCKET}
           existing: true
+          rules:
+            - prefix: nhl
     layers:
       - ${self:provider.environment.PYMONGO_LAYER}
