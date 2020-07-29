@@ -21,6 +21,13 @@ def test_persist_team_futures_success(environ, team_future_with_id):
     assert status_code == 200
     assert message == "team futures persisted"
 
+def test_persist_team_futures_no_markets_success(environ, team_future_with_no_market):
+    """ test connerror """
+    src.handler.process_team_futures.expire_resource = expire_resource_call
+    status_code, message = src.handler.process_team_futures.persist_league_team_futures(team_future_with_no_market, "wh:book:whnj", "nfl", 59)
+    assert status_code == 200
+    assert message == "team futures persisted"
+
 def test_persist_team_futures_by_team_success(environ, team_future_with_id):
     """ test connerror """
     src.handler.process_team_futures.expire_resource = expire_resource_call
@@ -48,4 +55,4 @@ def error_replace_one(mongo_client, team_collection, _id, data):
     raise PyMongoError
 
 def expire_resource_call(key):
-    pass
+    """ do nothing """

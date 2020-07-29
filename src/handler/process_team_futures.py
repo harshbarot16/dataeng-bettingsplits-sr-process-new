@@ -4,7 +4,6 @@ import logging
 import datetime
 import time
 import os
-import sys
 import copy
 import urllib.request
 from urllib.error import HTTPError
@@ -85,12 +84,18 @@ def persist_league_team_futures(futures, book_id, league, league_id):
     else:
         try:
             for future in futures:
-                t_s = time.time()
-                future["update_date"] = datetime.datetime.fromtimestamp(t_s, None)
-                result = replace_one(mongo_client, league_collection, future["_id"], future)
-                if not result.raw_result['ok']:
-                    logger.error(result.raw_result)
-                    logger.error("Error upserting document %s", future["name"])
+                if "markets" in future and len(future["markets"]) > 0:
+                    t_s = time.time()
+                    future["update_date"] = datetime.datetime.fromtimestamp(t_s, None)
+                    result = replace_one(mongo_client, league_collection, future["_id"], future)
+                    if not result.raw_result['ok']:
+                        logger.error(result.raw_result)
+                        logger.error("Error upserting document %s", future["name"])
+                else:
+                    if "name" in future:
+                        logger.error("No market for %s", future["name"])
+                    else:
+                        logger.error("Missing market for future")
             status_code = 200
             message = "team futures persisted"
         except PyMongoError as pm_error:
@@ -173,17 +178,23 @@ def fix_team_futures(futures):
                 team_futures[team_id] = []
                 team_futures.get(team_id).append(future)
         else:
-            for selection in future["markets"][0]["selections"]:
-                future_copy = copy.deepcopy(future)
-                future_copy["markets"][0]["selections"] = []
-                if "team_id" in selection:
-                    team_id = selection["team_id"]
-                    future_copy["markets"][0]["selections"].append(selection)
-                    if team_id in team_futures:
-                        team_futures.get(team_id).append(future_copy)
-                    else:
-                        team_futures[team_id] = []
-                        team_futures.get(team_id).append(future_copy)
+            if len(future["markets"]) > 0:
+                for selection in future["markets"][0]["selections"]:
+                    future_copy = copy.deepcopy(future)
+                    future_copy["markets"][0]["selections"] = []
+                    if "team_id" in selection:
+                        team_id = selection["team_id"]
+                        future_copy["markets"][0]["selections"].append(selection)
+                        if team_id in team_futures:
+                            team_futures.get(team_id).append(future_copy)
+                        else:
+                            team_futures[team_id] = []
+                            team_futures.get(team_id).append(future_copy)
+            else:
+                if "name" in future:
+                    logger.error("No market for %s", future["name"])
+                else:
+                    logger.error("Missing market for future")
     return team_futures
 
 def replace_one(mongo_client, team_collection, _id, data):
@@ -272,12 +283,11 @@ def add_team_id_from_name(future, william_hill_vendor_team_map):
     return future
 
 def expire_resource(key):
-    """ get stats vendor team map """
+    """ expire napi resource for future """
     try:
-        napi_api = "http://napi.prod.sdf.cbssports.cloud/resource/game/"
+        napi_api = "http://napi.prod.sdf.cbssports.cloud/resource/team/futures/"
         napi_api += str(key)
         napi_api += "?access_token=23acc7742eb3f95c4f162e969caa4aed380a4bc8&force_rebuild=1"
-        napi_api += "&resources="
         req = urllib.request.Request(napi_api)
         urllib.request.urlopen(req)
     except HTTPError as http_error:

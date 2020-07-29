@@ -33,7 +33,6 @@ def fix_environ():
     os.environ["LEAGUE"] = "nfl"
     os.environ["CBS_LEAGUE_ID"] = "59"
     os.environ["BOOKID"] = "wh:book:whnj"
-    # os.environ["DOC_DB_CONNECTION_STRING"] = "mongodb://atlas_write:weakWriteQA@datatech-sdf-docdb-qa.cluster-c5q8zvl01dua.us-east-1.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
     os.environ["DOC_DB_CONNECTION_STRING"] = "atlas.mongodb.uri=mongodb://atlas_write:weakWriteQA@sdf-mongo-qa.transit.cbsig.net/atlas?authSource=admin"
     os.environ["LEAGUE_MONGO_COLLECTION"] = "legue_team_futures_wh"
     os.environ["TEAM_MONGO_COLLECTION"] = "team_futures_wh"
@@ -164,12 +163,37 @@ def get_team_future_with_id():
         """
     return json.loads(data)
 
+@pytest.fixture(name="team_future_with_no_market")
+def get_team_future_with_no_market():
+    """ get team future with no market """
+    data = """[
+        {
+        "_id": "0c8ec734-4d98-32ee-8852-a9c4fde64f32",
+        "id": "0c8ec734-4d98-32ee-8852-a9c4fde64f32",
+        "name": "2020 NFC South Winner",
+        "sportId": "americanfootball",
+        "competitionId": "007d7c61-07a7-4e18-bb40-15104b6eac92",
+        "competitionName": "NFL",
+        "eventType": "TNMT",
+        "tradedInPlay": false,
+        "started": false,
+        "startTime": "2020-09-09T23:00:00.000Z",
+        "active": true,
+        "display": true,
+        "expiryDateInMillis": null,
+        "markets": [],
+        "statsEventId": ""
+        }
+        ]
+    """
+    return json.loads(data)
+
 @pytest.fixture(name="team_future_winner")
 def get_team_future_with_winner():
     """ get team future with winner """
     data = """[
         {
-            "_id": "0c8ec734-4d98-32ee-8852-a9c4fde64f32",
+        "_id": "0c8ec734-4d98-32ee-8852-a9c4fde64f32",
         "id": "0c8ec734-4d98-32ee-8852-a9c4fde64f32",
         "name": "2020 NFC South Winner",
         "sportId": "americanfootball",
