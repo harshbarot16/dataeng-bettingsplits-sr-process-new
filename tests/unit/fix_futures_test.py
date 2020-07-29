@@ -20,6 +20,11 @@ def test_fix_team_futures_winner(environ, team_future_winner):
     team_futures = src.handler.process_team_futures.fix_team_futures(team_future_winner)
     assert 405 in team_futures.keys()
 
+def test_fix_team_futures_winner_no_market(environ, team_future_with_no_market):
+    """ test fix fixtures """
+    team_futures = src.handler.process_team_futures.fix_team_futures(team_future_with_no_market)
+    assert not team_futures
+
 def get_stats_vendor_team_map(league):
     """ return map """
     vendor_team_map = {323 : 405}
