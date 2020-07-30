@@ -286,9 +286,9 @@ def expire_resource(key):
     """ expire napi resource for future """
     try:
         stage = os.environ["STAGE"]
-        napi_api = "https://sdf-"
+        napi_api = "https://sdf"
         if stage == "qa":
-            napi_api += stage
+            napi_api += "-qa"
         napi_api += "-api.cbssports.cloud/napi/resource/team/futures/"
         napi_api += str(key)
         napi_api += "?access_token=d97eb9bd975a433768af1e4d878ef93be40cbeb1&force_rebuild=1"
