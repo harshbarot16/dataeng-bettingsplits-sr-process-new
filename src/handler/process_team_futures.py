@@ -285,7 +285,9 @@ def add_team_id_from_name(future, william_hill_vendor_team_map):
 def expire_resource(key):
     """ expire napi resource for future """
     try:
-        napi_api = "http://napi.prod.sdf.cbssports.cloud/resource/team/futures/"
+        napi_api = "https://sdf-"
+        napi_api += os.environ["STAGE"]
+        napi_api += "-api.cbssports.cloud/napi/resource/team/futures/"
         napi_api += str(key)
         napi_api += "?access_token=23acc7742eb3f95c4f162e969caa4aed380a4bc8&force_rebuild=1"
         req = urllib.request.Request(napi_api)

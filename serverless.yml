@@ -11,6 +11,7 @@ provider:
   environment:
     TEAM_HANDLER: src/handler/process_team_futures.process_team_futures
     BOOKID: 'wh:book:whnj'
+    STAGE: ${opt:stage, self:provider.stage}
     BUCKET: 'dataeng-futures-wh-${opt:stage, self:provider.stage}'
     DOC_DB_CONNECTION_STRING:  ${file(./config/config-${opt:stage, self:provider.stage}.yml):docDbConnectionString}
     LEAGUE_MONGO_COLLECTION: 'league_team_futures_wh'
