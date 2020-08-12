@@ -7,7 +7,7 @@ vpc:
     - sg-0a19f4a2ae5462222
 
 docDbConnectionString:
-  atlas.mongodb.uri=mongodb://atlas_write:_sdkj28h21@sdf-mongo-prod-master.transit.cbsig.net:27017,sdf-mongo-prod-slave1.transit.cbsig.net:27017,sdf-mongo-prod-slave2.transit.cbsig.net:27017/atlas?w=1&replicaSet=sdfRs&readPreference=secondaryPreferred&authSource=admin
+  mongodb://atlas_write:_sdkj28h21@sdf-mongo-prod-master.transit.cbsig.net:27017,sdf-mongo-prod-slave1.transit.cbsig.net:27017,sdf-mongo-prod-slave2.transit.cbsig.net:27017/atlas?w=1&replicaSet=sdfRs&readPreference=secondaryPreferred&authSource=admin
 
 pymongo-layer:
   arn:aws:lambda:us-east-1:343152596262:layer:pymongo:1
