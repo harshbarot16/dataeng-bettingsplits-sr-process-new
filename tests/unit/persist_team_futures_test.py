@@ -28,6 +28,7 @@ def test_persist_team_futures_no_markets_success(environ, team_future_with_no_ma
     assert status_code == 200
     assert message == "team futures persisted"
 
+# persist_player_futures_by_player(futures, book_id, league, league_id):
 def test_persist_team_futures_by_team_success(environ, team_future_with_id):
     """ test connerror """
     src.handler.process_team_futures.expire_resource = expire_resource_call

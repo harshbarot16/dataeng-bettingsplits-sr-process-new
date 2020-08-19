@@ -2,6 +2,7 @@
 from botocore.exceptions import ClientError
 import src.handler.process_team_futures
 
+
 def test_process_team_futures_keyerror(bad_environ):
     """ test keyerror """
     event = s3_object_event()
@@ -29,9 +30,9 @@ def test_process_team_futures_valueerror(environ):
     """ test mismatched league error """
     event = s3_object_mismatched_event()
     response = src.handler.process_team_futures.process_team_futures(event, None)
-    assert response["statusCode"] == 200
+    assert response["statusCode"] == 501
     assert response["body"] == "nfl team futures completed"
-    assert response["message"] == "file doesn't match league"
+    assert response["message"] == "s3 get object error"
 
 # def test_process_team_futures_success(environ, s3):
 #     """ test success """
@@ -106,10 +107,9 @@ def s3_object_mismatched_event():
     return {
         "Records": [
             {
-                "s3": {
-                    "object": {"key": "mlb"},
-                    "bucket": {"name": "dataeng-futures-wh-qa"},
-                },
+                "Sns": {
+                    "Message": "{\"Records\":[{\"s3\":{\"bucket\":{\"name\":\"dataeng-futures-wh-qa\"},\"object\":{\"key\":\"nfl\"}}}]}"
+                }
             }
         ]
     }

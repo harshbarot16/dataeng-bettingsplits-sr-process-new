@@ -9,5 +9,14 @@ vpc:
 docDbConnectionString:
   atlas.mongodb.uri=mongodb://atlas_write:_sdkj28h21@sdf-mongo-prod-master.transit.cbsig.net:27017,sdf-mongo-prod-slave1.transit.cbsig.net:27017,sdf-mongo-prod-slave2.transit.cbsig.net:27017/atlas?w=1&replicaSet=sdfRs&readPreference=secondaryPreferred&authSource=admin
 
+mysqlHost:
+  cbss-sdf-prod-atlas-enc.cluster-cvrvcmdwbquf.us-east-1.rds.amazonaws.com
+mysqlUser:
+  atlas_write
+mysqlPwd:
+  719l0uc6Z2zb
+mysqlDb:
+  atlas
+
 pymongo-layer:
   arn:aws:lambda:us-east-1:104016028232:layer:pymongo:1
