@@ -15,7 +15,7 @@ provider:
 
     BOOKID: 'wh:book:whnj'
     STAGE: ${opt:stage, self:provider.stage}
-    BUCKET: 'dataeng-futures-wh-ingest-${self:service}-${opt:stage, self:provider.stage}'
+    BUCKET: 'dataeng-futures-wh-ingest-${opt:stage, self:provider.stage}'
     DOC_DB_CONNECTION_STRING:  ${file(./config/config-${opt:stage, self:provider.stage}.yml):docDbConnectionString}
     LEAGUE_MONGO_COLLECTION: 'league_team_futures_wh'
     TEAM_MONGO_COLLECTION: 'team_futures_wh'
