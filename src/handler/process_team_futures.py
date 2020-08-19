@@ -26,8 +26,9 @@ def process_team_futures(event, context):
         book_id = os.environ["BOOKID"]
         league = os.environ["LEAGUE"]
         league_id = int(os.environ["CBS_LEAGUE_ID"])
-        bucket_name = event['Records'][0]['s3']['bucket']['name']
-        file_key = event['Records'][0]['s3']['object']['key']
+        message = json.loads(event['Records'][0]['Sns']['Message'])
+        bucket_name = message['Records'][0]['s3']['bucket']['name']
+        file_key = message['Records'][0]['s3']['object']['key']
     except KeyError as key_error:
         message = "KeyError"
         logger.error("%s", key_error)
@@ -136,6 +137,7 @@ def persist_team_futures_by_team(futures, book_id, league, league_id):
         doc_db_connstring = os.environ["DOC_DB_CONNECTION_STRING"]
         mongo_client = get_client(doc_db_connstring)
         team_collection = os.environ["TEAM_MONGO_COLLECTION"]
+        logger.info(doc_db_connstring)
     except KeyError as key_error:
         status_code = 500
         message = "KeyError"
@@ -201,30 +203,7 @@ def replace_one(mongo_client, team_collection, _id, data):
     """ pymongo replace_one """
     return mongo_client.atlas[team_collection].replace_one({"_id" : _id}, data, upsert=True)
 
-def get_stats_vendor_team_map(league):
-    """ get stats vendor team map """
-    try:
-        primpy_api = "http://sdf-api.cbssports.cloud/primpy/fantasy/statsglo/teams/mappings/league/"
-        primpy_api += league
-        primpy_api += "?access_token=d3f02e8cba092ac4accbb02f63281f86880de43f"
-        req = urllib.request.Request(primpy_api)
-        data = json.load(urllib.request.urlopen(req))
-    except HTTPError as http_error:
-        message = "failed to retrieve " + primpy_api
-        logger.error(message)
-        logger.error("%s %s", http_error.code, http_error.reason)
-        status_code = http_error.code
-    except ValueError:
-        status_code = 500
-        message = "failed to decode json"
-        logger.error(message)
-    else:
-        status_code = 200
-        message = "found vendor team mappings"
-        vendor_team_map = {}
-        for mapped_team in data["mappedTeams"]:
-            vendor_team_map[mapped_team["vendorTeamId"]] = mapped_team["cbsTeamId"]
-    return status_code, message, vendor_team_map
+
 
 def get_wh_vendor_team_map(league):
     """ get wh vendor team map """

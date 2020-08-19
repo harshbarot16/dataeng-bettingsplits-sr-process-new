@@ -1,0 +1,10 @@
+{
+  "Records": [
+    {
+      "Sns": {
+        "Message": "{\"Records\":[{\"s3\":{\"bucket\":{\"name\":\"dataeng-futures-wh-qa\"},\"object\":{\"key\":\"nfl\"}}}]}"
+      }
+    }
+  ]
+}
+
