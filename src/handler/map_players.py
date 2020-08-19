@@ -30,9 +30,11 @@ def map_players(event, context):
 
     except KeyError as key_error:
         message = "KeyError"
+        logger.error("s3 connect failed")
         logger.error("%s", key_error)
     except TypeError as type_error:
         message = "TypeError"
+        logger.error("s3 connect failed")
         logger.error("%s", type_error)
     else:
         if league == file_key:
@@ -57,6 +59,7 @@ def process_s3(s3, bucket_name, file_key, book_id, league, league_id):
     except ClientError as ce:
         status_code = 501
         message = "s3 get object error"
+        logger.error(message)
         logger.error(ce.response["Error"]["Code"])
     except ValueError:
         status_code = 500
@@ -83,6 +86,7 @@ def filter_futures(futures, book_id, league, league_id):
     except KeyError as key_error:
         status_code = 500
         message = "KeyError"
+        logger.error("Failed to read json markets file")
         logger.error("%s", key_error)
     else:
         for future in futures:
@@ -145,6 +149,7 @@ def get_roster_player_ids_map(league):
     except KeyError as key_error:
         status_code = 500
         message = "KeyError"
+        logger.error("Failure while getting player vendor map")
         logger.error("%s", key_error)
     else:
         status_code = 200
@@ -175,6 +180,7 @@ def get_primpy_roster(league, season_year, season_type, recordOffset, recordLimi
     except KeyError as key_error:
         status_code = 500
         message = "KeyError"
+        logger.error("Primpy league roster query failed")
         logger.error("%s", key_error)
     else:
         status_code = 200
@@ -220,7 +226,7 @@ def get_wh_vendor_player_map(league):
         status_code = http_error.code
     except ValueError:
         status_code = 500
-        message = "failed to decode json"
+        message = "failed to decode json from player mappings Primpy response"
         logger.error(message)
     else:
         status_code = 200
