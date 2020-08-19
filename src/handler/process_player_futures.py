@@ -65,6 +65,7 @@ def process_s3(s3, bucket_name, file_key, book_id, league, league_id):
     except ClientError as ce:
         status_code = 501
         message = "s3 get object error"
+        logger.error(message)
         logger.error(ce.response["Error"]["Code"])
     except ValueError:
         status_code = 500
@@ -90,6 +91,7 @@ def filter_and_fix_futures(futures, book_id, league, league_id):
     except KeyError as key_error:
         status_code = 500
         message = "KeyError"
+        logger.error("Failed to load json file")
         logger.error("%s", key_error)
     else:
         for future in futures:
@@ -111,6 +113,7 @@ def persist_player_futures_by_player(futures, book_id, league, league_id):
     except KeyError as key_error:
         status_code = 500
         message = "KeyError"
+        logger.error("Failed to connect to DocDB")
         logger.error("%s", key_error)
     else:
         try:
@@ -133,6 +136,7 @@ def persist_player_futures_by_player(futures, book_id, league, league_id):
         except PyMongoError as pm_error:
             status_code = 500
             message = "Pymongo Error"
+            logger.error(message)
             logger.error("%s", pm_error)
     return status_code, message
 
@@ -145,6 +149,7 @@ def persist_league_player_futures(futures):
     except KeyError as key_error:
         status_code = 500
         message = "KeyError"
+        logger.error("Failed to connect to DocDB for league player collection")
         logger.error("%s", key_error)
     else:
         try:
@@ -166,6 +171,7 @@ def persist_league_player_futures(futures):
         except PyMongoError as pm_error:
             status_code = 500
             message = "Pymongo Error"
+            logger.error("Failed to write to DocDB for league player collection")
             logger.error("%s", pm_error)
 
     return status_code, message
@@ -245,7 +251,7 @@ def get_wh_vendor_player_map(league):
         status_code = http_error.code
     except ValueError:
         status_code = 500
-        message = "failed to decode json"
+        message = "failed to decode json from Primpy vendor mapping"
         logger.error(message)
     else:
         status_code = 200
