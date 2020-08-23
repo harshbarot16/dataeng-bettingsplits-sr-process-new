@@ -197,7 +197,7 @@ def fix_player_futures(futures, league):
                         else:
                             selection['playerId'] = player_id
                             future_copy["markets"][0]["selections"].append(selection)
-                            if name in player_futures:
+                            if player_id in player_futures:
                                 player_futures.get(player_id).append(future_copy)
                             else:
                                 player_futures[player_id] = []
