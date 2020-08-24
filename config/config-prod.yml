@@ -7,7 +7,7 @@ vpc:
     - sg-0a19f4a2ae5462222
 
 docDbConnectionString:
-  mongodb://atlas_write:_sdkj28h21@sdf-mongo-prod-master.transit.cbsig.net:27017,sdf-mongo-prod-slave1.transit.cbsig.net:27017,sdf-mongo-prod-slave2.transit.cbsig.net:27017/atlas?w=1&replicaSet=sdfRs&readPreference=secondaryPreferred&authSource=admin
+  mongodb://atlas_write:NmBv56U874Esd9@datatech-sdf-docdb-prod:cluster-cor1sgl3m5gj:us-east-1:docdb:amazonaws:com:27017/atlas?w=1&replicaSet=rs0&readPreference=secondaryPreferred&authSource=admin&retryWrites=false&ssl=true
 
 mysqlHost:
   cbss-sdf-prod-atlas-enc.cluster-cvrvcmdwbquf.us-east-1.rds.amazonaws.com

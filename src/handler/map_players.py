@@ -101,7 +101,10 @@ def check_and_add_vendor_mappings(futures, roster_name_playerid_map, vendor_name
         if len(future["markets"]) > 0:
             for selection in future["markets"][0]["selections"]:
                 if "name" in selection:
-                    name = selection["name"]
+                    if str(future["name"]).endswith("- Your Odds"):
+                        name = future["name"].split(" -")[0]
+                    else:
+                        name = selection["name"]
                     if name in vendor_name_playerid_map:
                         logger.info("Name existing in vendor mapping: "+name+". Nothing to do")
                     else:

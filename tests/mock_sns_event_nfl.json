@@ -1,8 +1,7 @@
-{
-  "Records": [
+{"Records": [
     {
       "Sns": {
-        "Message": "{\"Records\":[{\"s3\":{\"bucket\":{\"name\":\"dataeng-futures-wh-qa\"},\"object\":{\"key\":\"nfl\"}}}]}"
+        "Message": "{\"Records\":[{\"s3\":{\"bucket\":{\"name\":\"dataeng-futures-wh-ingest-qa\"},\"object\":{\"key\":\"nfl\"}}}]}"
       }
     }
   ]
