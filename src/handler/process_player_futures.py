@@ -29,13 +29,12 @@ def process_player_futures(event, context):
         book_id = os.environ["BOOKID"]
         league = os.environ["LEAGUE"]
         league_id = int(os.environ["CBS_LEAGUE_ID"])
-        print(event)
+        logger.info(event)
         message = json.loads(event['Records'][0]['Sns']['Message'])
-        print(message)
         bucket_name = message['Records'][0]['s3']['bucket']['name']
-        print(bucket_name)
+        logger.info(bucket_name)
         file_key = message['Records'][0]['s3']['object']['key']
-        print(file_key)
+        logger.info(file_key)
     except KeyError as key_error:
         message = "KeyError"
         logger.error("%s", key_error)
@@ -77,6 +76,8 @@ def process_s3(s3, bucket_name, file_key, book_id, league, league_id):
             status_code, message = persist_player_futures_by_player(futures, book_id, league, league_id)
         if status_code == 200:
             status_code, message = persist_league_player_futures(futures)
+
+
     return status_code, message
 
 def filter_and_fix_futures(futures, book_id, league, league_id):
@@ -95,6 +96,7 @@ def filter_and_fix_futures(futures, book_id, league, league_id):
         logger.error("%s", key_error)
     else:
         for future in futures:
+
             if any(tmn in future["name"] for tmn in markets["market_names"]):
                 future["_id"] = future["id"]
                 del future["id"]
@@ -186,22 +188,40 @@ def fix_player_futures(futures, league):
         player_futures = {}
         for future in futures:
             if len(future["markets"]) > 0:
-                for selection in future["markets"][0]["selections"]:
+                if str(future["name"]).endswith("- Your Odds"):
                     future_copy = copy.deepcopy(future)
-                    future_copy["markets"][0]["selections"] = []
-                    if "name" in selection:
-                        name = selection["name"]
-                        player_id = william_hill_vendor_player_map.get(name,0)
-                        if player_id == 0:
-                            logger.warning("No vendor mapping found for: "+name)
-                        else:
+                    name = future["name"].split(" -")[0]
+                    player_id = william_hill_vendor_player_map.get(name,0)
+                    if player_id == 0:
+                        logger.warning("No vendor mapping found for: "+name)
+                    else:
+                        for selection in future["markets"][0]["selections"]:
                             selection['playerId'] = player_id
-                            future_copy["markets"][0]["selections"].append(selection)
+                        for market in future_copy["markets"]:
+                            for selection in market["selections"]:
+                                selection['playerId'] = player_id
                             if player_id in player_futures:
                                 player_futures.get(player_id).append(future_copy)
                             else:
                                 player_futures[player_id] = []
                                 player_futures.get(player_id).append(future_copy)
+                else:
+                    for selection in future["markets"][0]["selections"]:
+                        future_copy = copy.deepcopy(future)
+                        future_copy["markets"][0]["selections"] = []
+                        if "name" in selection:
+                            name = selection["name"]
+                            player_id = william_hill_vendor_player_map.get(name,0)
+                            if player_id == 0:
+                                logger.warning("No vendor mapping found for: "+name)
+                            else:
+                                selection['playerId'] = player_id
+                                future_copy["markets"][0]["selections"].append(selection)
+                                if player_id in player_futures:
+                                    player_futures.get(player_id).append(future_copy)
+                                else:
+                                    player_futures[player_id] = []
+                                    player_futures.get(player_id).append(future_copy)
             else:
                 if "name" in future:
                     logger.error("No market for %s", future["name"])
