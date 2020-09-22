@@ -281,3 +281,28 @@ def expire_resource(key):
 def get_client(conn):
     """ get mongo client """
     return pymongo.MongoClient(conn)
+
+def get_stats_vendor_team_map(league):
+    """ get stats vendor team map """
+    try:
+        primpy_api = "http://sdf-api.cbssports.cloud/primpy/fantasy/statsglo/teams/mappings/league/"
+        primpy_api += league
+        primpy_api += "?access_token=d3f02e8cba092ac4accbb02f63281f86880de43f"
+        req = urllib.request.Request(primpy_api)
+        data = json.load(urllib.request.urlopen(req))
+    except HTTPError as http_error:
+        message = "failed to retrieve " + primpy_api
+        logger.error(message)
+        logger.error("%s %s", http_error.code, http_error.reason)
+        status_code = http_error.code
+    except ValueError:
+        status_code = 500
+        message = "failed to decode json"
+        logger.error(message)
+    else:
+        status_code = 200
+        message = "found vendor team mappings"
+        vendor_team_map = {}
+        for mapped_team in data["mappedTeams"]:
+            vendor_team_map[mapped_team["vendorTeamId"]] = mapped_team["cbsTeamId"]
+    return status_code, message, vendor_team_map
