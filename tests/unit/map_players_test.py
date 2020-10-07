@@ -29,6 +29,11 @@ def test_map_players_get_roster_player_ids_map(environ):
     status_code, message, filtered_futures = src.handler.map_players.get_roster_player_ids_map("nfl")
     assert status_code == 500
 
+def test_get_wh_vendor_player_map(environ):
+    status_code, message, filtered_futures = src.handler.map_players.get_wh_vendor_player_map("nfl")
+    assert status_code == 200
+    assert message == 'found vendor player mappings'
+
 # def test_process_player_futures_incomplete_eventerror(environ):
 #     event = s3_object_incomplete_event()
 #     response = src.handler.process_player_futures.process_player_futures(event, None)
