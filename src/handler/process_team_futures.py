@@ -66,11 +66,41 @@ def process_s3(s3, bucket_name, file_key, book_id, league, league_id):
     else:
         status_code, message, futures = fix_futures(futures, book_id, league, league_id)
         if status_code == 200:
+            status_code, message, futures = add_implied_prob(futures)
+        if status_code == 200:
             status_code, message = persist_league_team_futures(futures, book_id, league, league_id)
         if status_code == 200:
             status_code, message = persist_team_futures_by_team(futures, book_id, league, league_id)
 
     return status_code, message
+
+def add_implied_prob(futures):
+    """ add implied probability from american odds price """
+    try:
+        for future in futures:
+            if "markets" in future and len(future["markets"]) > 0:   
+                for market in future["markets"]:
+                    if "selections" in market and len(market["selections"]) > 0:
+                        for selection in market["selections"]:
+                            if selection["active"]:
+                                selection["price"]["ip"] = calc_implied_prob(selection["price"]["a"])
+    except KeyError as key_error:
+        status_code = 500
+        message = "KeyError"
+        logger.error("%s", key_error)
+    else:
+        status_code = 200
+        message = "Success"
+    return status_code, message, futures
+
+def calc_implied_prob(amer_odds):
+    """ calculate implied probability """
+    odds = int(amer_odds)
+    if odds < 0:
+        ip = (-odds/(-odds + 100))*100.0
+    else:
+        ip = (100/(odds + 100))*100.0
+    return round(ip, 2)
 
 def persist_league_team_futures(futures, book_id, league, league_id):
     """ persist league team futures to documentDb """
