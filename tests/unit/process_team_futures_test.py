@@ -34,13 +34,12 @@ def test_process_team_futures_valueerror(environ):
     assert response["body"] == "nfl team futures completed"
     assert response["message"] == "s3 get object error"
 
-# def test_process_team_futures_success(environ, s3):
-#     """ test success """
-#     event = s3_object_event()
-#     response = src.handler.process_team_futures.process_team_futures(event, None)
-#     assert response["statusCode"] == 200
-#     assert response["body"] == "nfl team futures completed"
-#     assert response["message"] == "team futures processed"
+def test_implied_prob(environ, team_future_with_id):
+    """ test implied prob """
+    status_code, message, futures = src.handler.process_team_futures.add_implied_prob(team_future_with_id)
+    assert status_code == 200
+    assert message == "Success"
+    assert "ip" in futures[0]["markets"][0]["selections"][0]["price"]
 
 def test_process_team_futures_clienterror(environ, s3):
     """ test s3 client error """
