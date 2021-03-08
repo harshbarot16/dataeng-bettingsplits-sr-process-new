@@ -27,6 +27,6 @@ aws cloudformation create-stack --stack-name dataeng-bettingsplits-sr-process --
 With your own personalized stackName (STAGE=usernameMMDD)
 The default serverless deploy creates a stack named ${self:service}-${self:provider.stage}
 ```bash
-# Create new stack in scoring-dev account named: dataeng-bettingsplits-sr-process
+# Create new stack in scoring-dev account named: dataeng-bettingsplits-sr-process-hkbaro0125
 AWS_PROFILE=scoring-qa; STAGE=hkbaro0125; serverless deploy --stage $STAGE --verbose --aws-s3-accelerate
 ```
