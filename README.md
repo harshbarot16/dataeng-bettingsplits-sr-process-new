@@ -1,4 +1,4 @@
-# William Hill Futures Processor
+# Betting Splits Insights Processor
 
 Retrieve futures from s3. Ingestion is kicked off using Cloudwatch s3 event and persisted into documentdb. 
 
@@ -20,7 +20,7 @@ Requirements:
 ## Pipelines
 Pipelines are set up in  in qa, and prod for automated deployments from github triggered by merge into master. They will be created by running:
 ```bash
-aws cloudformation create-stack --stack-name dataeng-team-futures-wh-process --template-body file://build/pipeline-prod.yml --capabilities CAPABILITY_NAMED_IAM --parameters '[{"ParameterKey":"ProjectName","ParameterValue":"dataeng-futures-wh-process"}]'
+aws cloudformation create-stack --stack-name dataeng-bettingsplits-sr-process --template-body file://build/pipeline-prod.yml --capabilities CAPABILITY_NAMED_IAM --parameters '[{"ParameterKey":"ProjectName","ParameterValue":"dataeng-bettingsplits-sr-process"}]'
 ```
 
 ## Deploy from local to dev
