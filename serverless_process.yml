@@ -1,0 +1,111 @@
+service: dataeng-bettingsplits-sr-process
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: python3.7
+  tracing:
+    lambda: true
+  environment:
+    HANDLER: src/handler/bettingsplits_process.get_betting_splits
+    STAGE: ${opt:stage, self:provider.stage}
+    BUCKET: 'dataeng-bettingsplits-sr-ingest-${opt:stage, self:provider.stage}'
+    DOC_DB_CONNECTION_STRING: ${file(./config/config-${opt:stage, self:provider.stage}.yml):docDbConnectionString}
+    BETTING_MONGO_COLLECTION: 'betting_splits_ingest'
+    PYMONGO_LAYER: ${file(./config/config-${opt:stage, self:provider.stage}.yml):pymongo-layer}
+  stage: ${opt:stage, 'qa'}
+  region: us-east-1
+  timeout: 60
+  vpc: ${file(./config/config-${opt:stage, self:provider.stage}.yml):vpc}
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+      Resource: 'arn:aws:s3:::${self:provider.environment.BUCKET}/*'
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: 'arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}'
+
+
+functions:
+  # NFL
+  nfl:
+    handler: ${self:provider.environment.HANDLER}
+    environment:
+      LEAGUE: 'nfl'
+    events:
+      - sns:
+          arn:
+            Fn::Join:
+              - ':'
+              - - 'arn:aws:sns'
+                - Ref: 'AWS::Region'
+                - Ref: 'AWS::AccountId'
+                - 'dataeng-bettingsplits-ingest-nfl-topic-${opt:stage, self:provider.stage}'
+          topicName: 'dataeng-bettingsplits-ingest-nfl-topic-${opt:stage, self:provider.stage}'
+          layers:
+            - ${self:provider.environment.PYMONGO_LAYER}
+  # NBA
+  nba:
+    handler: ${self:provider.environment.HANDLER}
+    environment:
+      LEAGUE: 'nba'
+    events:
+      - sns:
+          arn:
+            Fn::Join:
+              - ':'
+              - - 'arn:aws:sns'
+                - Ref: 'AWS::Region'
+                - Ref: 'AWS::AccountId'
+                - 'dataeng-bettingsplits-ingest-nba-topic-${opt:stage, self:provider.stage}'
+          topicName: 'dataeng-bettingsplits-ingest-nba-topic-${opt:stage, self:provider.stage}'
+          layers:
+            - ${self:provider.environment.PYMONGO_LAYER}
+
+  # MLB
+  mlb:
+    handler: ${self:provider.environment.HANDLER}
+    environment:
+      ENDPOINT: 'mlb'
+    events:
+      - sns:
+          arn:
+            Fn::Join:
+              - ':'
+              - - 'arn:aws:sns'
+                - Ref: 'AWS::Region'
+                - Ref: 'AWS::AccountId'
+                - 'dataeng-bettingsplits-ingest-mlb-topic-${opt:stage, self:provider.stage}'
+          topicName: 'dataeng-bettingsplits-ingest-mlb-topic-${opt:stage, self:provider.stage}'
+          layers:
+            - ${self:provider.environment.PYMONGO_LAYER}
+  # NHL
+  nhl:
+    handler: ${self:provider.environment.HANDLER}
+    environment:
+      ENDPOINT: 'nhl'
+        - sns:
+            arn:
+              Fn::Join:
+                - ':'
+                - - 'arn:aws:sns'
+                  - Ref: 'AWS::Region'
+                  - Ref: 'AWS::AccountId'
+                  - 'dataeng-bettingsplits-ingest-nhl-topic-${opt:stage, self:provider.stage}'
+            topicName: 'dataeng-bettingsplits-ingest-nhl-topic-${opt:stage, self:provider.stage}'
+            layers:
+              - ${self:provider.environment.PYMONGO_LAYER}
+
+plugins:
+  - serverless-python-requirements
