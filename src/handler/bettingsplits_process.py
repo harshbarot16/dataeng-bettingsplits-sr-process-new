@@ -88,7 +88,7 @@ def load_betting_splits_docdb(game_id_trunc,data):
         logger.error("%s", key_error)
     else:
         try:
-            betting = {'_id': game_id_trunc, 'Markets': data}
+            betting = {'_id': game_id_trunc, 'markets': data}
             betting_json = json.loads(json.dumps(betting, default=str))
             update_ts = time.time()
             betting_json['update_db_ts'] = datetime.datetime.fromtimestamp(update_ts, None)
